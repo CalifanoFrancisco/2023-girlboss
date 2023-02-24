@@ -1,6 +1,7 @@
 holiis
 
 este proyecto lo hice creo q en diciembre 2022 por alguna razon
+usa SFML obviamente :D
 error "Memory access violation 0xFFFFFFF" no importa pq pasa con el destructor del TileMap pero b0e no se puede todo en la vida
 tileset personalizado por favorrr (hay una textura rampa q esta mal el ángulo tho)
 
