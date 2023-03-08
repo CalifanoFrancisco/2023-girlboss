@@ -47,11 +47,11 @@ void bmp::bitmap_file_header::read(std::ifstream& stream, bitmap_file_header& bf
 
     if (big_endian())
     {
-        bfh.type = flip(bfh.type);
-        bfh.size = flip(bfh.size);
+        bfh.type      = flip(bfh.type);
+        bfh.size      = flip(bfh.size);
         bfh.reserved1 = flip(bfh.reserved1);
         bfh.reserved2 = flip(bfh.reserved2);
-        bfh.off_bits = flip(bfh.off_bits);
+        bfh.off_bits  = flip(bfh.off_bits);
     }
 }
 
@@ -114,17 +114,17 @@ void bmp::bitmap_information_header::read(std::ifstream& stream, bitmap_informat
 
     if (big_endian())
     {
-        bih.size = flip(bih.size);
-        bih.width = flip(bih.width);
-        bih.height = flip(bih.height);
-        bih.planes = flip(bih.planes);
-        bih.bit_count = flip(bih.bit_count);
-        bih.compression = flip(bih.compression);
-        bih.size_image = flip(bih.size_image);
+        bih.size             = flip(bih.size);
+        bih.width            = flip(bih.width);
+        bih.height           = flip(bih.height);
+        bih.planes           = flip(bih.planes);
+        bih.bit_count        = flip(bih.bit_count);
+        bih.compression      = flip(bih.compression);
+        bih.size_image       = flip(bih.size_image);
         bih.x_pels_per_meter = flip(bih.x_pels_per_meter);
         bih.y_pels_per_meter = flip(bih.y_pels_per_meter);
-        bih.clr_used = flip(bih.clr_used);
-        bih.clr_important = flip(bih.clr_important);
+        bih.clr_used         = flip(bih.clr_used);
+        bih.clr_important    = flip(bih.clr_important);
     }
 }
 
@@ -367,25 +367,25 @@ void bmp::Bitmap::fexport(const std::string& file_name) const
 
     bitmap_information_header bih;
 
-    bih.width = m_width;
-    bih.height = m_height;
-    bih.bit_count = static_cast<unsigned short>(m_bytes_per_pixel << 3);
-    bih.clr_important = 0;
-    bih.clr_used = 0;
-    bih.compression = 0;
-    bih.planes = 1;
-    bih.size = bih.struct_size();
+    bih.width            = m_width;
+    bih.height           = m_height;
+    bih.bit_count        = static_cast<unsigned short>(m_bytes_per_pixel << 3);
+    bih.clr_important    = 0;
+    bih.clr_used         = 0;
+    bih.compression      = 0;
+    bih.planes           = 1;
+    bih.size             = bih.struct_size();
     bih.x_pels_per_meter = 0;
     bih.y_pels_per_meter = 0;
-    bih.size_image = (((bih.width * m_bytes_per_pixel) + 3) & 0x0000FFFC) * bih.height;
+    bih.size_image       = (((bih.width * m_bytes_per_pixel) + 3) & 0x0000FFFC) * bih.height;
 
     bitmap_file_header bfh;
 
-    bfh.type = 19778;
-    bfh.size = bfh.struct_size() + bih.struct_size() + bih.size_image;
+    bfh.type      = 19778;
+    bfh.size      = bfh.struct_size() + bih.struct_size() + bih.size_image;
     bfh.reserved1 = 0;
     bfh.reserved2 = 0;
-    bfh.off_bits = bih.struct_size() + bfh.struct_size();
+    bfh.off_bits  = bih.struct_size() + bfh.struct_size();
 
     bfh.write(stream, bfh);
     bih.write(stream, bih);
