@@ -6,6 +6,16 @@
 
 #include "BMP.h"
 
+#define DEBUG true
+#if DEBUG
+    #define println(x) std::cout << x << std::endl
+    #define print(x)   std::cout << x
+#else
+    #define println(x)
+    #define print(x)
+#endif // DEBUG
+
+
 namespace wfc {
 
 struct PixelInfo {
@@ -13,6 +23,7 @@ struct PixelInfo {
     unsigned int x, y;
     std::vector<bmp::rgb_t> adjacency;
     PixelInfo(unsigned int x_, unsigned int y_, bmp::rgb_t color_);
+    PixelInfo();
 };
 
 class Data {
