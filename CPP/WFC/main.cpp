@@ -1,22 +1,32 @@
+#include <SFML/Graphics.hpp>
 #include <iostream>
-#include "Bitmap.h"
 #include "WFC.h"
 
-void buildTestFile(int x_ = 20, int y_ = 20, std::string filename = "out.bmp") {
-    bmp::Bitmap image(x_, y_);
-    for (int y = 0; y < image.height(); y++)
-        for (int x = 0; x < image.width(); x++)
-            image.setPixel(x, y, 
-                bmp::rgb_t(
-                    255,0,0
-                )
-            );
-    image.fexport(filename);
-}
-
 int main() {
-    //buildTestFile(10, 10);
-    wfc::Data data(bmp::Bitmap("out.bmp"));
-    data.load();
+    WFC wavefunctioncollapse(10,10);
+    wavefunctioncollapse.start();
+
     return 0;
+
+    sf::RenderWindow app(sf::VideoMode(800, 600), "SFML window");
+
+    sf::Texture texture;
+    if (!texture.loadFromFile("cb.bmp"))
+        return EXIT_FAILURE;
+    sf::Sprite sprite(texture);
+
+    while (app.isOpen()) {
+        sf::Event event;
+        while (app.pollEvent(event)) {
+            switch (event.type) {
+                case sf::Event::Closed: app.close(); break;
+            }
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) return 0;
+        }
+
+        app.clear();
+        app.display();
+    }
+
+    return EXIT_SUCCESS;
 }

@@ -1,59 +1,91 @@
 #include "WFC.h"
 
-wfc::PixelInfo::PixelInfo(unsigned int x_, unsigned int y_, bmp::rgb_t color_) :
-    x(x_), y(y_), adjacency(std::vector<bmp::rgb_t>(x_* y_)), center_color(color_)
+TileInfo::TileInfo(t_tile texture_, bool up, bool down, bool left, bool right) :
+    UP(up), DOWN(down), LEFT(left), RIGHT(right), texture(texture_)
 { }
 
-wfc::PixelInfo::PixelInfo() :
-    x(0), y(0), center_color(bmp::rgb_t(0, 0, 0))
+TileInfo::TileInfo() :
+    UP(0), DOWN(0), LEFT(0), RIGHT(0), texture(t_tile::NONE)
+{
+}
+
+Tile::Tile(const std::vector<TileInfo>& info)
+{
+    tiles.resize(info.size());
+    for (int i = 0; i < tiles.size(); i++)
+        tiles[i] = info[i].texture;
+}
+
+Tile::Tile():
+    texture(t_tile::NONE)
 { }
 
-wfc::Data::Data(const bmp::Bitmap& bitmap) :
-    m_bitmap(bitmap)
+WFC::WFC(int x, int y) :
+    m_height(y), m_width(x), m_tiles(std::vector<Tile>(x * y)), m_TotalTextures(12)
 {
     init();
 }
 
-wfc::Data::Data(const std::string& filename) :
-    m_bitmap(bmp::Bitmap(filename))
-{
-    init();
+void WFC::init() {
+    atlas.loadFromFile("tileTypes.png");
+    //each tile must be 10*10
+    println("File \"tileTypes.png\" loaded.");
+
+    m_rules.resize(atlas.getSize().x/10);
+    //                     TEXTURE                  U  D  L  R
+    m_rules[0]  = TileInfo(t_tile::DOWN_RIGHT     , 0, 1, 0, 1);
+    m_rules[1]  = TileInfo(t_tile::DOWN_UP        , 1, 1, 0, 0);
+    m_rules[2]  = TileInfo(t_tile::DOWN_LEFT      , 0, 1, 1, 0);
+    m_rules[3]  = TileInfo(t_tile::LEFT_RIGHT     , 0, 0, 1, 1);
+    m_rules[4]  = TileInfo(t_tile::UP_RIGHT       , 1, 0, 0, 1);
+    m_rules[5]  = TileInfo(t_tile::UP_LEFT        , 1, 0, 1, 0);
+    m_rules[6]  = TileInfo(t_tile::LEFT_UP_DOWN   , 1, 1, 1, 0);
+    m_rules[7]  = TileInfo(t_tile::RIGHT_UP_DOWN  , 1, 1, 0, 1);
+    m_rules[8]  = TileInfo(t_tile::UP_LEFT_RIGHT  , 1, 0, 1, 1);
+    m_rules[9]  = TileInfo(t_tile::DOWN_LEFT_RIGHT, 0, 1, 1, 1);
+    m_rules[10] = TileInfo(t_tile::ALL            , 1, 1, 1, 1);
+    m_rules[11] = TileInfo(t_tile::NONE           , 0, 0, 0, 0);
+
+    println(std::string("WFC successfully initiated"));
+    //aca bolude
+    for (int i = 0; i < m_tiles.size(); i++)
+        m_tiles[i] = Tile(m_rules);
+
+    m_output.resize(m_tiles.size());
 }
 
-void wfc::Data::init() {
-    m_info.resize(m_bitmap.width() * m_bitmap.height());
-    if (DEBUG) std::cout << "m_info size:" << m_info.size() << std::endl;
+int  WFC::random(int min, int max) const {
+    return min + rand() % max;
 }
 
-void wfc::Data::load() {
-    unsigned int area = 2;
-    unsigned int percentage = 0;
+void WFC::collapse(const unsigned int n_tile) {
+    int tileType = random(0, m_tiles[n_tile].tiles.size());    //choose random tile texture from avilable textures
+    m_tiles[n_tile].texture = static_cast<t_tile>(tileType);
+    m_tiles[n_tile].tiles.clear();  //sets entropy == 0
+    println(std::string(
+      "Tile n°" + std::to_string(n_tile) + " collapsed to state " + std::to_string(tileType)
+    ));
+}
 
-    println("Analyzing image");
+void WFC::propagate() {
+    int n_tile = 83;
+    if (
+        n_tile + m_width > m_width * m_height ||
+        n_tile - m_width < 0                  ||
+        n_tile + 1       < m_width * m_height
 
-    for (int i = 0; i < m_info.size(); i++) {
-        m_info[i].center_color = m_bitmap.getPixel(area, area);
-        m_info[i].adjacency.resize((area * 2 + 1) * (area * 2 + 1));
+    ) { }
+}
 
-        //Console logs of percent of image read
-        if (percentage != (i * 100) / m_info.size() && DEBUG) {
-            percentage = (i * 100) / m_info.size();
-            std::cout << percentage << "%   " << i << "/" << m_info.size() << std::endl;
-        }
+void WFC::start() {
+    //Init output
+    collapse(random(0, m_tiles.size()));
+    propagate();
+    while (true) {
 
-        for (int y = 0; y < m_bitmap.height(); y++) {
-            for (int x = 0; x < m_bitmap.width(); x++) {
-
-                if (
-                    (int(x - area) >= 0 && x < m_bitmap.width()) &&
-                    (int(y - area) >= 0 && y < m_bitmap.height())
-                    ) {
-                    //la linea de abajo crashea :(
-                    //m_info[i].adjacency[y * m_bitmap.width() + x]; //=
-                    m_bitmap.getPixel(x - area, y - area);
-                }
-            }
-        }
     }
-    if (DEBUG) std::cout << "100%  " << m_info.size() << "/" << m_info.size() << std::endl;
 }
+void WFC::fexport() { }
+
+
+
