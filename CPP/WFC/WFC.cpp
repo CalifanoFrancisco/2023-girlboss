@@ -75,6 +75,8 @@ void WFC::propagate() {
         n_tile + 1       < m_width * m_height
 
     ) { }
+    //falta esta function
+    std::cout << "WFC::propagate(): funcion incompleta papu :(" << std::endl;
 }
 
 void WFC::start() {
@@ -82,7 +84,7 @@ void WFC::start() {
     collapse(random(0, m_tiles.size()));
     propagate();
     while (true) {
-
+        
     }
 }
 void WFC::fexport() { }
